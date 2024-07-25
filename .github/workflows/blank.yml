@@ -1,0 +1,73 @@
+name: Build
+
+on:
+  push:
+
+jobs:
+  build-binaries:
+    name: Build binaries
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install spacectl
+        uses: spacelift-io/setup-spacectl@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Build binaries
+        run: |
+          sleep 15
+          echo "building binaries done"
+
+      - name: Notify Spacelift of build completion (success)
+        if: success()
+        env:
+          SPACELIFT_API_KEY_ENDPOINT: https://max-sandbox.app.spacelift.io
+          SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
+          SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
+        run: spacectl run-external-dependency mark-completed --id "${GITHUB_SHA}-binary-build" --status finished
+
+      - name: Notify Spacelift of build completion (failed)
+        if: failure()
+        env:
+          SPACELIFT_API_KEY_ENDPOINT: https://max-sandbox.app.spacelift.io
+          SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
+          SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
+        run: spacectl run-external-dependency mark-completed --id "${GITHUB_SHA}-binary-build" --status failed
+
+  build-docker-images:
+    name: Build docker images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install spacectl
+        uses: spacelift-io/setup-spacectl@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Build docker images
+        run: |
+          sleep 30
+          echo "building images done"
+
+      - name: Notify Spacelift of build completion (success)
+        if: success()
+        env:
+          SPACELIFT_API_KEY_ENDPOINT: https://max-sandbox.app.spacelift.io
+          SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
+          SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
+        run: spacectl run-external-dependency mark-completed --id "${GITHUB_SHA}-docker-image-build" --status finished
+
+      - name: Notify Spacelift of build completion (failed)
+        if: failure()
+        env:
+          SPACELIFT_API_KEY_ENDPOINT: https://max-sandbox.app.spacelift.io
+          SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
+          SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
+        run: spacectl run-external-dependency mark-completed --id "${GITHUB_SHA}-docker-image-build" --status failed

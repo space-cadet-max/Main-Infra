@@ -1,3 +1,3 @@
 output "instance_ip_addr" {
-  value = "Hello World1"
+  value = "Hello World2"
 }
